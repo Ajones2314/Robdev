@@ -5,7 +5,7 @@
 #   jarvis-review                 review files changed compared to main
 #   jarvis-review --base dev      compare against another branch instead
 #   jarvis-review path/a.luau ... review exactly these files
-#   jarvis-review --cloud gemini-2.5-flash ...
+#   jarvis-review --cloud gemini-3.8-flash ...
 #                                 use a stronger cloud model instead of the local
 #                                 one (needs that provider's API key, e.g.
 #                                 GEMINI_API_KEY or OPENAI_API_KEY)
