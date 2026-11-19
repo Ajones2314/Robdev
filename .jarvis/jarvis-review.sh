@@ -5,6 +5,10 @@
 #   jarvis-review                 review files changed compared to main
 #   jarvis-review --base dev      compare against another branch instead
 #   jarvis-review path/a.luau ... review exactly these files
+#   jarvis-review --cloud gemini-2.5-flash ...
+#                                 use a stronger cloud model instead of the local
+#                                 one (needs that provider's API key, e.g.
+#                                 GEMINI_API_KEY or OPENAI_API_KEY)
 #
 # It reads the project's checklist from .jarvis/review-checklist.md (if there is
 # one) and saves the full report to .jarvis/last-review.md.
@@ -12,10 +16,12 @@ set -euo pipefail
 
 BASE="main"
 FILES=()
+ENGINE_ARGS=()
 while [ $# -gt 0 ]; do
     case "$1" in
         --base) BASE="$2"; shift 2 ;;
-        -h|--help) sed -n '2,10p' "$0"; exit 0 ;;
+        --cloud) ENGINE_ARGS=(--engine cloud --model "$2"); shift 2 ;;
+        -h|--help) sed -n '2,14p' "$0"; exit 0 ;;
         *) FILES+=("$1"); shift ;;
     esac
 done
@@ -86,7 +92,7 @@ $(cat "$f")
     # out of turns. --no-context keeps old chats out of the review, and
     # --quiet hides the banner.
     ANSWER=$(jarvis --quiet ask --agent simple --no-context --no-stream \
-        --max-tokens 2048 "$PROMPT") || ANSWER="(OpenJarvis failed on this file; error shown above)"
+        --max-tokens 2048 ${ENGINE_ARGS[@]+"${ENGINE_ARGS[@]}"} "$PROMPT") || ANSWER="(OpenJarvis failed on this file; error shown above)"
     [ -z "$ANSWER" ] && ANSWER="(no answer)"
     printf '%s\n' "$ANSWER"
     {
