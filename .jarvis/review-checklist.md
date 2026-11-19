@@ -16,10 +16,14 @@ Your job is to find REAL problems a player would notice or could abuse.
 
 ## Check these, in this order
 
-1. **Distance checks.** When the server rewards a player for touching or
-   interacting with something (Touched, a remote, a ProximityPrompt), does it check
-   on the SERVER that the player's character is actually close to it? If a remote
-   lets the player do the action from anywhere, report it.
+1. **Distance checks.** Exploiters can teleport their character anywhere and can
+   fire `Touched` on any part from anywhere. They can also call any remote
+   (`Actions.register(...)` handlers) directly, skipping ProximityPrompts. A
+   ProximityPrompt's `MaxActivationDistance` does NOT protect a remote handler
+   that calls the same function. So for every `.Touched` handler and every
+   `Actions.register` handler that gives coins, items or pets, look for a line
+   that compares the player's `HumanoidRootPart.Position` with the object's
+   position (`.Magnitude`). If there is no such line, FAIL.
 2. **Trusting the client.** Does the server use any number, price, amount, item
    or position that came from the client? It should only accept a NAME or ID and
    look up the real value itself.
@@ -34,13 +38,17 @@ Your job is to find REAL problems a player would notice or could abuse.
 
 ## How to answer
 
-- Only report a problem if you can point to the exact line. Quote the line.
-- For each problem write:
-  - **Problem:** one sentence
-  - **Line:** the quoted code
-  - **How a player hits it:** one sentence
-  - **Fix:** one or two sentences
-  - **Confidence:** HIGH or LOW
-- If you find nothing real, say "No real problems found in this file." That is a
-  good answer. Do not invent problems to fill space.
-- Keep it short. No intro paragraph and no general advice at the end.
+Go through checks 1 to 7 IN ORDER and answer every one, using exactly this format:
+
+```
+1. Distance checks: PASS / FAIL / N/A
+   Evidence: <quote the line(s) you looked at, or "no such code in this file">
+   (If FAIL) How a player abuses it: <one sentence>
+   (If FAIL) Fix: <one or two sentences>
+```
+
+Rules:
+- N/A means the file has no code of that kind at all. PASS needs a quoted line
+  that proves it. If you can't quote proof, it is not a PASS.
+- Then finish with one line: `Summary: <number> FAIL(s)` and the most serious one.
+- No intro paragraph and no general advice.
